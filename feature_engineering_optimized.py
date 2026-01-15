@@ -139,21 +139,33 @@ def load_raw_data():
             original_length = len(df)
             total_original += original_length
 
-            # ========== 关键：6小时下采样 ==========
-            # 只保留小时数为0, 6, 12, 18的观测点
-            df['hour'] = df['time'].dt.hour
-            df_6h = df[df['hour'].isin([0, 6, 12, 18])].copy()
-            df_6h = df_6h.drop(columns=['hour'])
+            # ========== 关键：6小时下采样（从台风实际开始时间算起）==========
+            # 从第一个观测点开始，每隔6小时采样一次
+            if len(df) > 0:
+                start_time = df['time'].iloc[0]
+                hours_from_start = (df['time'] - start_time).dt.total_seconds() / 3600
 
-            # 验证间隔是否为6小时（允许小误差）
-            if len(df_6h) > 1:
-                time_diffs = df_6h['time'].diff().dt.total_seconds() / 3600
-                time_diffs = time_diffs.dropna()
-                # 检查是否所有间隔都接近6小时（允许±1小时误差，处理数据不完整情况）
-                valid_intervals = ((time_diffs >= 5) & (time_diffs <= 7)).sum()
-                if valid_intervals < len(time_diffs) * 0.8:  # 至少80%的间隔符合要求
-                    # 间隔不规律，打印警告但继续使用
-                    pass
+                # 找出每个6小时窗口的数据点
+                indices_to_keep = [0]  # 保留起始点
+                current_target_hour = 6  # 下一个目标是6小时后
+
+                for idx in range(1, len(df)):
+                    hour = hours_from_start.iloc[idx]
+
+                    # 如果到达或超过当前目标时间
+                    if hour >= current_target_hour - 0.5:
+                        # 检查间隔是否超过6小时（说明数据断了）
+                        if hour > current_target_hour + 6:
+                            # 数据不连续，后面的都不要了
+                            break
+
+                        # 保留这个点
+                        indices_to_keep.append(idx)
+                        current_target_hour += 6  # 下一个目标时间
+
+                df_6h = df.iloc[indices_to_keep].reset_index(drop=True)
+            else:
+                df_6h = df.copy()
 
             downsampled_length = len(df_6h)
             total_downsampled += downsampled_length

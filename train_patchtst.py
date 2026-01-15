@@ -418,8 +418,7 @@ def train():
         optimizer,
         mode='min',
         factor=TRAIN_CONFIG['scheduler_factor'],
-        patience=TRAIN_CONFIG['scheduler_patience'],
-        verbose=True
+        patience=TRAIN_CONFIG['scheduler_patience']
     )
 
     # 训练循环

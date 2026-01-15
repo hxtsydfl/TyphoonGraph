@@ -582,7 +582,7 @@ def train():
                           weight_decay=TRAIN_CONFIG['weight_decay'])
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(
         optimizer, mode='min', factor=TRAIN_CONFIG['scheduler_factor'],
-        patience=TRAIN_CONFIG['scheduler_patience'], verbose=True
+        patience=TRAIN_CONFIG['scheduler_patience']
     )
 
     print("\n" + "=" * 80)
