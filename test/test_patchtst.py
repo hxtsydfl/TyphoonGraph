@@ -18,8 +18,8 @@ from torch.utils.data import Dataset, DataLoader
 sys.stdout.reconfigure(encoding='utf-8')
 
 # ==================== 配置参数 ====================
-DATA_DIR = './data/processed_features'
-MODEL_DIR = './models/patchtst'
+DATA_DIR = '../data/processed_features'
+MODEL_DIR = '../models/patchtst'
 MODEL_PATH = os.path.join(MODEL_DIR, 'best_model.pth')
 
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
